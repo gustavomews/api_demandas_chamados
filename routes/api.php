@@ -28,5 +28,6 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function() {
     Route::post('demand/cancel/{demand}', [App\Http\Controllers\DemandController::class, 'cancel'])->name('demand.cancel');
 });
 
+Route::post('register', [App\Http\Controllers\RegisterController::class, 'register']);
 Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
 Route::post('refresh', [App\Http\Controllers\AuthController::class, 'refresh']);
