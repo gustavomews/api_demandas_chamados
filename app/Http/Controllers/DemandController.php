@@ -63,6 +63,12 @@ class DemandController extends Controller
     public function show($id)
     {
         //
+        $demand = $this->demand->with('interactions')->find($id);
+        if(!isset($demand->id)) {
+            return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
+        }
+
+        return response()->json($demand, 200);
     }
 
     /**
@@ -75,6 +81,141 @@ class DemandController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $demand = $this->demand->find($id);
+        if(!isset($demand->id)) {
+            return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
+        }
+
+        // Dynamic Rules for Patch method
+        if ($request->method() === 'PATCH') {
+            $dynamicRules = array();
+
+            foreach ($this->demand->rules() as $input => $rule) {
+                if (array_key_exists($input, $request->all())) {
+                    $dynamicRules[$input] = $rule;
+                }
+            }
+
+            $request->validate($dynamicRules, $this->demand->feedback());
+        } else {
+            // All Rules for Put method
+            $request->validate($this->demand->rules(), $this->demand->feedback());
+        }
+        
+
+        // ---------------------------------------------------------------------- Update demand
+        $demand->fill($request->all());
+        $demand->save();
+
+        // ---------------------------------------------------------------------- Create interaction
+        $interaction['demand_id'] = $demand->id;
+        $interaction['user_id'] = auth()->user()->id;
+        $interaction['description'] = 'Demanda editada';
+        $this->interaction->create($interaction);
+        
+        // ---------------------------------------------------------------------- Return view
+        return response()->json(['demand' => $demand, 'interaction' => $interaction], 200);
+    }
+
+    /**
+     * Update the specified demand set in progress in storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function open($id)
+    {
+        // ---------------------------------------------------------------------- Open demand
+        $demand = $this->demand->find($id);
+        if(!isset($demand->id)) {
+            return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Validating whether the demand is not pending
+        if($demand->status_id != 1) {
+            return response()->json(['error' => 'Demanda/Chamado deve estar pendente para realizar a abertura!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Open
+        $demand->status_id = 2;
+        $demand->save();
+
+        // ---------------------------------------------------------------------- Create interaction
+        $interaction['demand_id'] = $id;
+        $interaction['user_id'] = auth()->user()->id;
+        $interaction['description'] = 'Status alterado para: Em Andamento';
+        $this->interaction->create($interaction);
+
+        // ---------------------------------------------------------------------- Return index show
+        return response()->json(['demand' => $demand, 'interaction' => $interaction], 200);
+    }
+
+    /**
+     * Update the specified demand set conclude in storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function conclude($id)
+    {
+        // ---------------------------------------------------------------------- Conclude demand
+        $demand = $this->demand->find($id);
+        if(!isset($demand->id)) {
+            return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Validating whether the demand is not opened
+        if($demand->status_id != 2) {
+            return response()->json(['error' => 'Demanda/Chamado deve estar aberta para realizar a conclusão!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Conclude
+        $demand->status_id = 3;
+        $demand->datetime_end = date('Y-m-d H:i:s');
+        $demand->save();
+
+        // ---------------------------------------------------------------------- Create interaction
+        $interaction['demand_id'] = $id;
+        $interaction['user_id'] = auth()->user()->id;
+        $interaction['description'] = 'Status alterado para: Concluído';
+        $this->interaction->create($interaction);
+
+        // ---------------------------------------------------------------------- Return index show
+        return response()->json(['demand' => $demand, 'interaction' => $interaction], 200);
+    }
+
+    /**
+     * Update the specified demand set cancel in storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function cancel($id)
+    {
+        // ---------------------------------------------------------------------- Cancel demand
+        $demand = $this->demand->find($id);
+        if(!isset($demand->id)) {
+            return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Validating whether the demand is not opened
+        if($demand->status_id != 2) {
+            return response()->json(['error' => 'Demanda/Chamado deve estar aberta para realizar o cancelamento!'], 404);
+        }
+
+        // ---------------------------------------------------------------------- Cancel
+        $demand->status_id = 4;
+        $demand->datetime_end = date('Y-m-d H:i:s');
+        $demand->save();
+
+        // ---------------------------------------------------------------------- Create interaction
+        $interaction['demand_id'] = $id;
+        $interaction['user_id'] = auth()->user()->id;
+        $interaction['description'] = 'Status alterado para: Cancelado';
+        $this->interaction->create($interaction);
+
+        // ---------------------------------------------------------------------- Return index show
+        return response()->json(['demand' => $demand, 'interaction' => $interaction], 200);
     }
 
     /**
@@ -86,5 +227,6 @@ class DemandController extends Controller
     public function destroy($id)
     {
         //
+        return response()->json(['error' => 'Operação não permitida!'], 401);
     }
 }

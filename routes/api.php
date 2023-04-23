@@ -23,6 +23,9 @@ Route::prefix('v1')->middleware('jwt.auth')->group(function() {
     Route::post('me', [App\Http\Controllers\AuthController::class, 'me']);
 
     Route::apiResource('demand', App\Http\Controllers\DemandController::class);
+    Route::post('demand/open/{demand}', [App\Http\Controllers\DemandController::class, 'open'])->name('demand.open');
+    Route::post('demand/conclude/{demand}', [App\Http\Controllers\DemandController::class, 'conclude'])->name('demand.conclude');
+    Route::post('demand/cancel/{demand}', [App\Http\Controllers\DemandController::class, 'cancel'])->name('demand.cancel');
 });
 
 Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
