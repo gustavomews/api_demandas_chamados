@@ -31,7 +31,9 @@ class RegisterController extends Controller
         $request->validate($rules, $feedback);
 
         // ---------------------------------------------------------------------- Create User
-        $user = $this->user->create($request->all());
+        $user = $request->all();
+        $user['password'] = bcrypt($user['password']);
+        $user = $this->user->create($user);
 
         // ---------------------------------------------------------------------- Return response
         return response()->json($user, 201);
