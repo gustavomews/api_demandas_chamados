@@ -18,4 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('demand', App\Http\Controllers\DemandController::class);
+Route::prefix('v1')->middleware('jwt.auth')->group(function() {
+    Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
+    Route::post('me', [App\Http\Controllers\AuthController::class, 'me']);
+
+    Route::apiResource('demand', App\Http\Controllers\DemandController::class);
+});
+
+Route::post('login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::post('refresh', [App\Http\Controllers\AuthController::class, 'refresh']);
