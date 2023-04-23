@@ -37,4 +37,22 @@ class Demand extends Model
 
         return $this->hasMany('App\Models\Interaction');
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public function rules() {
+        return [
+            'title' => 'required|min:5|max:40',
+            'description' => 'max:2000'
+        ];
+    }
+
+    public function feedback() {
+        return [
+            'required' => 'O preenchimento é obrigatório!',
+            'title.min' => 'O título deve possuir no mínimo 5 caracteres!',
+            'title.max' => 'O título deve possuir no máximo 40 caracteres!',
+            'description.max' => 'A descrição deve possuir no maximo 2000 caracteres!',
+        ];
+    }
 }
