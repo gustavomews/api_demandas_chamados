@@ -44,13 +44,13 @@ PHP 7.4.33 |
 PostgreSQL 15.1
 
 ### Processos para rodar o sistema
-- git clone https://github.com/gustavomews/app_demandas_chamados_vue.git
-- cd app_demandas_chamados_vue
+- git clone https://github.com/gustavomews/api_demandas_chamados.git
+- cd api_demandas_chamados
 - composer update
-- 
+
 - Criar base de dados no postgres com o nome demandas_chamados
 - Verificar se conexão com o banco ficou igual a do .env disponibilizado no git hub
-- 
+
 - php artisan migrate
 - php artisan db:seed --class=StatusDemandSeeder
 
