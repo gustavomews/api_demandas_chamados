@@ -17,7 +17,7 @@ class AuthController extends Controller
         if($token) {
             return response()->json(['token' => $token]);
         } else { // inválido
-            return response()->json(['erro' => 'Usuário ou senha inválido!'], 403);
+            return response()->json(['error' => 'Usuário ou senha inválido!'], 403);
 
             // 401 - Unauthorized = Não autorizado
             // 403 - Forbidden = Proibido / Login inválido
@@ -26,7 +26,7 @@ class AuthController extends Controller
 
     public function logout() {
         auth('api')->logout();
-        return response()->json(['msg' => 'Logout realizado com sucesso!']);
+        return response()->json(['success' => 'Logout realizado com sucesso!']);
     }
 
     public function refresh() {
