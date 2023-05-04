@@ -21,8 +21,17 @@ class DemandController extends Controller
     public function index(Request $request)
     {
         //
-        $demandRepository = new DemandRepository($this->demand);
-        return response()->json($demandRepository->getResult(), 200);
+        $demands = [];
+        $demandsGet = $this->demand->with(['user', 'status'])->orderBy('status_id')->orderBy('id')->get();
+        for($i = 0; $i < count($demandsGet); $i++) {
+            $demands[$i]['id'] = $demandsGet[$i]['id'];
+            $demands[$i]['title'] = $demandsGet[$i]['title'];
+            $demands[$i]['datetime_open'] = $demandsGet[$i]['datetime_open'];
+            $demands[$i]['user'] = $demandsGet[$i]['user']['name'];
+            $demands[$i]['status'] = $demandsGet[$i]['status']['title'];
+            $demands[$i]['status_codename'] = $demandsGet[$i]['status']['codename'];
+        };
+        return response()->json($demands, 200);
     }
 
     /**
