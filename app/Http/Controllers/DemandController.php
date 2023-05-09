@@ -72,7 +72,7 @@ class DemandController extends Controller
     public function show($id)
     {
         //
-        $demand = $this->demand->with('interactions')->find($id);
+        $demand = $this->demand->with(['user', 'status', 'interactions.user'])->find($id);
         if(!isset($demand->id)) {
             return response()->json(['error' => 'Demanda/Chamado não encontrado!'], 404);
         }
